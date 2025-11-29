@@ -143,7 +143,7 @@
         </section>
 
         <!-- Output Section (Blue Theme) -->
-        <section class="bg-white rounded-lg shadow-md overflow-hidden border-t-4 border-blue-500 min-h-[400px]">
+        <section class="bg-white rounded-lg shadow-md overflow-hidden border-t-4 border-blue-500 min-h-[400px] mb-6">
             <div class="bg-blue-50 px-6 py-3 border-b border-blue-100 flex justify-between items-center">
                 <h2 class="font-bold text-blue-800 flex items-center gap-2">
                     <i class="fa-solid fa-table-list"></i> 計算結果 (出力)
@@ -195,6 +195,49 @@
             <div id="emptyState" class="hidden py-12 flex flex-col items-center justify-center text-gray-400">
                 <i class="fa-solid fa-chart-simple text-4xl mb-3 opacity-20"></i>
                 <p>データを入力して「計算実行」ボタンを押してください</p>
+            </div>
+        </section>
+
+        <!-- Voltage Tolerance Check Section -->
+        <section class="bg-white rounded-lg shadow-md overflow-hidden mb-6 border-t-4 border-indigo-500">
+            <div class="bg-indigo-50 px-6 py-2 border-b border-indigo-100">
+                <h2 class="font-bold text-indigo-800 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-arrows-left-right"></i> 電圧許容範囲チェック
+                </h2>
+            </div>
+            <div class="p-6">
+                <div class="max-w-2xl mx-auto">
+                    <!-- Inputs -->
+                    <div class="flex justify-center gap-8 mb-6">
+                        <div class="text-center w-32">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">動作電圧 (V)</label>
+                            <input type="number" id="check_voltage" value="600" class="w-full px-3 py-2 border border-orange-200 rounded bg-orange-50 text-center text-base font-bold text-gray-800 focus:ring-2 focus:ring-orange-400 focus:outline-none shadow-sm" placeholder="0">
+                        </div>
+                        <div class="text-center w-32">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">出力公差 (%)</label>
+                            <input type="number" id="check_tolerance" value="5" class="w-full px-3 py-2 border border-orange-200 rounded bg-orange-50 text-center text-base font-bold text-gray-800 focus:ring-2 focus:ring-orange-400 focus:outline-none shadow-sm" placeholder="5">
+                        </div>
+                    </div>
+
+                    <!-- Result Display -->
+                    <div class="flex items-end justify-center gap-3">
+                        <div class="text-center w-32">
+                            <div class="text-[10px] text-gray-400 mb-1">最小電圧 (V)</div>
+                            <div class="bg-blue-50 border border-blue-100 rounded py-2 px-1">
+                                <div id="res_min_voltage" class="text-lg font-bold text-blue-800">570</div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-gray-400 text-sm pb-3">～</div>
+                        
+                        <div class="text-center w-32">
+                            <div class="text-[10px] text-gray-400 mb-1">最大電圧 (V)</div>
+                            <div class="bg-blue-50 border border-blue-100 rounded py-2 px-1">
+                                <div id="res_max_voltage" class="text-lg font-bold text-blue-800">630</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
