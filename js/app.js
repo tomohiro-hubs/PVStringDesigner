@@ -32,7 +32,12 @@ const CONFIG = {
             gamma: 'gamma',
             nStart: 'n_series_start',
             nEnd: 'n_series_end',
-            maxSysVoltage: 'max_system_voltage'
+            maxSysVoltage: 'max_system_voltage',
+            // Simple Check Tool
+            checkVolt: 'check_voltage',
+            checkTol: 'check_tolerance',
+            resMin: 'res_min_voltage',
+            resMax: 'res_max_voltage'
         },
         buttons: {
             calculate: 'btnCalculate',
@@ -70,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     CONFIG.defaults.temps.forEach(temp => addRow(temp));
     // Initial calculation
     calculateAll();
+    calculateTolerance(); // Init simple check tool
 });
 
 /**
@@ -119,6 +125,12 @@ function setupEventListeners() {
         if (btn) {
             btn.closest('tr').remove();
         }
+    });
+
+    // Tolerance Check Tool (Realtime)
+    const checkInputs = [CONFIG.dom.inputs.checkVolt, CONFIG.dom.inputs.checkTol];
+    checkInputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', calculateTolerance);
     });
 }
 
@@ -209,6 +221,43 @@ function clearInputs() {
     document.getElementById(CONFIG.dom.inputs.nEnd).value = '';
     // Max voltage usually stays at standard 1500 or 1000, but clearing it too as requested
     document.getElementById(CONFIG.dom.inputs.maxSysVoltage).value = '';
+
+    // Simple Check Tool - Reset to defaults or clear?
+    // Let's reset to default 600/5 as they are useful defaults, or maybe clear them too?
+    // User asked to "create something that inputs..." so maybe clear is better or keep them.
+    // I will keep them as is, or maybe reset to 0.
+    // Let's clear them to be consistent with "Clear All".
+    document.getElementById(CONFIG.dom.inputs.checkVolt).value = '';
+    document.getElementById(CONFIG.dom.inputs.checkTol).value = '';
+    calculateTolerance();
+}
+
+/**
+ * Simple Tolerance Calculation
+ */
+function calculateTolerance() {
+    const v = parseFloat(document.getElementById(CONFIG.dom.inputs.checkVolt).value);
+    const tol = parseFloat(document.getElementById(CONFIG.dom.inputs.checkTol).value);
+
+    const elMin = document.getElementById(CONFIG.dom.inputs.resMin);
+    const elMax = document.getElementById(CONFIG.dom.inputs.resMax);
+
+    if (isNaN(v) || isNaN(tol)) {
+        elMin.textContent = '-';
+        elMax.textContent = '-';
+        return;
+    }
+
+    // Min = V * (100 - tol) / 100
+    const minVal = v * ((100 - tol) / 100);
+    // Max = V * (100 + tol) / 100
+    const maxVal = v * ((100 + tol) / 100);
+
+    // Format: max 2 decimals, remove trailing zeros if integer
+    const fmt = (n) => parseFloat(n.toFixed(2)).toLocaleString('ja-JP');
+
+    elMin.textContent = fmt(minVal);
+    elMax.textContent = fmt(maxVal);
 }
 
 /**
