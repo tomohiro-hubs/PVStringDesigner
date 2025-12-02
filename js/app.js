@@ -225,12 +225,17 @@ function setupEventListeners() {
                 if (data) {
                     fillSpecs(data);
                     makerInput.value = data.maker; // Auto-fill maker
-                    calculateCurrentPrediction(); // Recalculate current prediction with new STC values
+                    calculateCurrentPrediction(); // Recalculate current
+                    calculateAll(); // Recalculate main table
                 }
             } else {
                 makerInput.value = '';
                 clearSpecs();
-                calculateCurrentPrediction(); // Reset calculation
+                calculateCurrentPrediction(); // Reset current
+                // calculateAll(); // Optional: clear table results too? Better to keep last state or clear?
+                // Let's leave table as is or clear it visually?
+                // Usually clearing input implies clearing output is safer to avoid mismatch
+                clearResults(); 
             }
         }
     });
