@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PVモジュール温度特性計算ツール</title>
+    <title>PV String Designer - ver 1.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
@@ -16,10 +16,15 @@
     <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <i class="fa-solid fa-solar-panel text-blue-600 text-xl"></i>
-                <h1 class="text-lg font-bold text-gray-900">PVモジュール温度特性計算 (機械的完工チェック)</h1>
+                <i class="fa-solid fa-solar-panel text-indigo-600 text-2xl"></i>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900 tracking-tight">PV String Designer</h1>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-wider leading-none">Module Temperature Characteristics Analyzer</p>
+                </div>
             </div>
-            <div class="text-sm text-gray-500 hidden sm:block">ver 1.0</div>
+            <div class="flex items-center gap-2">
+                <span class="px-2 py-1 rounded text-xs font-mono bg-gray-100 text-gray-600">ver 1.1</span>
+            </div>
         </div>
     </header>
 
@@ -150,6 +155,15 @@
                         <i class="fa-solid fa-trash-can-arrow-up"></i> 入力クリア
                     </button>
                 </div>
+
+                <!-- Disclaimer -->
+                <div class="col-span-1 md:col-span-2 lg:col-span-4 mt-2 p-3 bg-yellow-50 rounded border border-yellow-100 text-xs text-yellow-800 flex items-start gap-2">
+                    <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
+                    <p>
+                        <strong>ご注意:</strong> プリセットされているパネル情報は参考値であり、正確性を保証するものではありません。<br>
+                        必ずメーカーの最新の仕様書（データシート）を確認し、数値に誤りがないか照合の上ご使用ください。
+                    </p>
+                </div>
             </div>
         </section>
 
@@ -219,14 +233,18 @@
             <div class="p-6">
                 <div class="max-w-2xl mx-auto">
                     <!-- Inputs -->
-                    <div class="flex justify-center gap-8 mb-6">
-                        <div class="text-center w-32">
+                    <div class="flex justify-center gap-4 mb-6">
+                        <div class="text-center w-28">
                             <label class="block text-xs font-medium text-gray-600 mb-1">動作電圧 (V)</label>
                             <input type="number" id="check_voltage" value="600" class="w-full px-3 py-2 border border-orange-200 rounded bg-orange-50 text-center text-base font-bold text-gray-800 focus:ring-2 focus:ring-orange-400 focus:outline-none shadow-sm" placeholder="0">
                         </div>
-                        <div class="text-center w-32">
-                            <label class="block text-xs font-medium text-gray-600 mb-1">出力公差 (%)</label>
-                            <input type="number" id="check_tolerance" value="5" class="w-full px-3 py-2 border border-orange-200 rounded bg-orange-50 text-center text-base font-bold text-gray-800 focus:ring-2 focus:ring-orange-400 focus:outline-none shadow-sm" placeholder="5">
+                        <div class="text-center w-24">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">公差上限 (+%)</label>
+                            <input type="number" id="check_tolerance_plus" value="5" class="w-full px-3 py-2 border border-orange-200 rounded bg-orange-50 text-center text-base font-bold text-gray-800 focus:ring-2 focus:ring-orange-400 focus:outline-none shadow-sm" placeholder="5">
+                        </div>
+                        <div class="text-center w-24">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">公差下限 (-%)</label>
+                            <input type="number" id="check_tolerance_minus" value="5" class="w-full px-3 py-2 border border-orange-200 rounded bg-orange-50 text-center text-base font-bold text-gray-800 focus:ring-2 focus:ring-orange-400 focus:outline-none shadow-sm" placeholder="5">
                         </div>
                     </div>
 

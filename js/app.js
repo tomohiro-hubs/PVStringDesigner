@@ -37,7 +37,8 @@ const CONFIG = {
             maxSysVoltage: 'max_system_voltage',
             // Simple Check Tool
             checkVolt: 'check_voltage',
-            checkTol: 'check_tolerance',
+            checkTolPlus: 'check_tolerance_plus',
+            checkTolMinus: 'check_tolerance_minus',
             resMin: 'res_min_voltage',
             resMax: 'res_max_voltage'
         },
@@ -238,7 +239,7 @@ function setupEventListeners() {
     });
 
     // Tolerance Check Tool (Realtime)
-    const checkInputs = [CONFIG.dom.inputs.checkVolt, CONFIG.dom.inputs.checkTol];
+    const checkInputs = [CONFIG.dom.inputs.checkVolt, CONFIG.dom.inputs.checkTolPlus, CONFIG.dom.inputs.checkTolMinus];
     checkInputs.forEach(id => {
         document.getElementById(id).addEventListener('input', calculateTolerance);
     });
@@ -343,12 +344,9 @@ function clearInputs() {
     document.getElementById(CONFIG.dom.inputs.maxSysVoltage).value = '';
 
     // Simple Check Tool - Reset to defaults or clear?
-    // Let's reset to default 600/5 as they are useful defaults, or maybe clear them too?
-    // User asked to "create something that inputs..." so maybe clear is better or keep them.
-    // I will keep them as is, or maybe reset to 0.
-    // Let's clear them to be consistent with "Clear All".
     document.getElementById(CONFIG.dom.inputs.checkVolt).value = '';
-    document.getElementById(CONFIG.dom.inputs.checkTol).value = '';
+    document.getElementById(CONFIG.dom.inputs.checkTolPlus).value = '';
+    document.getElementById(CONFIG.dom.inputs.checkTolMinus).value = '';
     calculateTolerance();
 }
 
@@ -357,21 +355,22 @@ function clearInputs() {
  */
 function calculateTolerance() {
     const v = parseFloat(document.getElementById(CONFIG.dom.inputs.checkVolt).value);
-    const tol = parseFloat(document.getElementById(CONFIG.dom.inputs.checkTol).value);
+    const tolPlus = parseFloat(document.getElementById(CONFIG.dom.inputs.checkTolPlus).value);
+    const tolMinus = parseFloat(document.getElementById(CONFIG.dom.inputs.checkTolMinus).value);
 
     const elMin = document.getElementById(CONFIG.dom.inputs.resMin);
     const elMax = document.getElementById(CONFIG.dom.inputs.resMax);
 
-    if (isNaN(v) || isNaN(tol)) {
+    if (isNaN(v) || isNaN(tolPlus) || isNaN(tolMinus)) {
         elMin.textContent = '-';
         elMax.textContent = '-';
         return;
     }
 
-    // Min = V * (100 - tol) / 100
-    const minVal = v * ((100 - tol) / 100);
-    // Max = V * (100 + tol) / 100
-    const maxVal = v * ((100 + tol) / 100);
+    // Min = V * (100 - tolMinus) / 100
+    const minVal = v * ((100 - tolMinus) / 100);
+    // Max = V * (100 + tolPlus) / 100
+    const maxVal = v * ((100 + tolPlus) / 100);
 
     // Format: max 2 decimals, remove trailing zeros if integer
     const fmt = (n) => parseFloat(n.toFixed(2)).toLocaleString('ja-JP');
