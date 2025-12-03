@@ -264,14 +264,16 @@ function setupEventListeners() {
 
     // Current Prediction Tool (Realtime)
     const currInputs = [CONFIG.dom.inputs.calcCurrTemp, CONFIG.dom.inputs.calcCurrIrr, 
-                        CONFIG.dom.inputs.isc, CONFIG.dom.inputs.imp, CONFIG.dom.inputs.alpha];
+                        CONFIG.dom.inputs.isc, CONFIG.dom.inputs.imp, CONFIG.dom.inputs.pmax, CONFIG.dom.inputs.vmp,
+                        CONFIG.dom.inputs.alpha, CONFIG.dom.inputs.beta, CONFIG.dom.inputs.gamma, CONFIG.dom.inputs.maxSysCurrent];
     
     // Add listeners to inputs
     [CONFIG.dom.inputs.calcCurrTemp, CONFIG.dom.inputs.calcCurrIrr].forEach(id => {
         document.getElementById(id).addEventListener('input', calculateCurrentPrediction);
     });
     // Also trigger when STC params change (using existing input IDs from config)
-    [CONFIG.dom.inputs.isc, CONFIG.dom.inputs.imp, CONFIG.dom.inputs.alpha, CONFIG.dom.inputs.maxSysCurrent].forEach(id => {
+    [CONFIG.dom.inputs.isc, CONFIG.dom.inputs.imp, CONFIG.dom.inputs.pmax, CONFIG.dom.inputs.vmp, 
+     CONFIG.dom.inputs.alpha, CONFIG.dom.inputs.beta, CONFIG.dom.inputs.gamma, CONFIG.dom.inputs.maxSysCurrent].forEach(id => {
         document.getElementById(id).addEventListener('input', calculateCurrentPrediction);
     });
 
@@ -434,8 +436,13 @@ function calculateCurrentPrediction() {
     const maxCurrent = parseFloat(document.getElementById(CONFIG.dom.inputs.maxSysCurrent).value) || 30;
 
     const iscStc = parseFloat(document.getElementById(CONFIG.dom.inputs.isc).value);
-    const impStc = parseFloat(document.getElementById(CONFIG.dom.inputs.imp).value);
-    const alpha = parseFloat(document.getElementById(CONFIG.dom.inputs.alpha).value); // %/C
+    // const impStc = parseFloat(document.getElementById(CONFIG.dom.inputs.imp).value); // No longer used directly for prediction
+    const pmaxStc = parseFloat(document.getElementById(CONFIG.dom.inputs.pmax).value);
+    const vmpStc = parseFloat(document.getElementById(CONFIG.dom.inputs.vmp).value);
+    
+    const alpha = parseFloat(document.getElementById(CONFIG.dom.inputs.alpha).value); // Isc coeff %/C
+    const beta = parseFloat(document.getElementById(CONFIG.dom.inputs.beta).value);   // Voltage coeff %/C
+    const gamma = parseFloat(document.getElementById(CONFIG.dom.inputs.gamma).value); // Power coeff %/C
 
     // DOM Elements
     const elIscMppt = document.getElementById(CONFIG.dom.inputs.resIscMppt);
@@ -449,7 +456,9 @@ function calculateCurrentPrediction() {
     elCountIsc.textContent = parallel;
     elCountImp.textContent = parallel;
 
-    if (isNaN(temp) || isNaN(irr) || isNaN(iscStc) || isNaN(impStc) || isNaN(alpha)) {
+    // Validation
+    if (isNaN(temp) || isNaN(irr) || isNaN(iscStc) || isNaN(pmaxStc) || isNaN(vmpStc) || 
+        isNaN(alpha) || isNaN(beta) || isNaN(gamma)) {
         elIscMppt.textContent = '-';
         elImpMppt.textContent = '-';
         elIscString.textContent = '-';
@@ -457,14 +466,38 @@ function calculateCurrentPrediction() {
         return;
     }
 
-    // Calculate: I_stc * [1 + alpha_dec * (T-25)] * (G/1000)
+    // Common Factors
     const deltaT = temp - 25;
-    const alphaDec = alpha / 100; // % to decimal
     const irrFactor = irr / 1000;
 
+    // --- 1. Calculate Isc (Standard Formula) ---
+    // Isc(T,G) = Isc_stc * [1 + alpha * dT] * (G/1000)
+    const alphaDec = alpha / 100;
     const iscString = iscStc * (1 + alphaDec * deltaT) * irrFactor;
-    const impString = impStc * (1 + alphaDec * deltaT) * irrFactor; // Using alpha(Isc) for Imp as approximation
 
+    // --- 2. Calculate Imp (Derived from Pmax/Vmp) ---
+    
+    // Vmp(T) = Vmp_stc * [1 + beta * dT]
+    // Note: Voltage is mostly independent of irradiance in this simplified model, 
+    // or log-dependent which is complex. Standard simple model uses Temp only for V.
+    // However, user said "check Specific Condition Voltage Prediction" logic.
+    // That logic uses `beta` (or gamma in compat mode). We use beta (standard) here.
+    const betaDec = beta / 100;
+    // Apply mode logic? The prompt implies standard physics.
+    // Let's use the same logic as "Standard Mode" in main table: beta for voltage.
+    const vmpT = vmpStc * (1 + betaDec * deltaT);
+
+    // Pmax(T, G) = Pmax_stc * [1 + gamma * dT] * (G/1000)
+    const gammaDec = gamma / 100;
+    const pmaxTG = pmaxStc * (1 + gammaDec * deltaT) * irrFactor;
+
+    // Imp = Pmax / Vmp
+    let impString = 0;
+    if (vmpT > 0) {
+        impString = pmaxTG / vmpT;
+    }
+
+    // --- 3. System Totals ---
     const iscMppt = iscString * parallel;
     const impMppt = impString * parallel;
 
